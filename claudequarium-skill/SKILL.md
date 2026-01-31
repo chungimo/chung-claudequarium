@@ -29,31 +29,39 @@ When you run `/claudequarium`, Claude will:
 
 ### When This Skill Is Invoked
 
-1. **Check if the server is running** by making a test request:
+1. **Read the server URL from config.env** in the skill folder:
    ```bash
-   curl -s http://localhost:4000/api/state
+   cat "<SKILL_FOLDER>/config.env"
    ```
-   If this fails, tell the user to start the server first (see "Starting the Server" below).
+   Extract the `CLAUDEQUARIUM_SERVER` value. If the file doesn't exist or the variable is missing, default to `http://localhost:4000`.
 
-2. **Spawn an entity** for this session (show "Claudequarium: Spawning" message):
+   **Save this URL** - you'll use it for all API calls in this session (referred to as `<SERVER_URL>` below).
+
+2. **Check if the server is running** by making a test request:
    ```bash
-   echo "Claudequarium: Spawning" && curl -s -X POST http://localhost:4000/api/spawn -H "Content-Type: application/json" -d '{"session_id": "<SESSION_ID>"}'
+   curl -s --max-time 5 <SERVER_URL>/health
+   ```
+   If this fails or returns empty, tell the user to start the server first (see "Starting the Server" below).
+
+3. **Spawn an entity** for this session (show "Claudequarium: Spawning" message):
+   ```bash
+   echo "Claudequarium: Spawning" && curl -s --max-time 5 -X POST <SERVER_URL>/api/spawn -H "Content-Type: application/json" -d '{"session_id": "<SESSION_ID>"}'
    ```
    Use the current session ID or generate a unique identifier.
 
-3. **Save the entity_id** from the response. You'll need it for state updates.
+4. **Save the entity_id** from the response. You'll need it for state updates.
 
-4. **Confirm to the user** that their character has spawned and tell them to open http://localhost:4000 in a browser to see it.
+5. **Confirm to the user** that their character has spawned and tell them to open the server URL in a browser to see it.
 
 ### During the Session
 
-Update the entity state based on what you're doing. Use echo to show a brief status, then run curl silently:
+Update the entity state based on what you're doing. Use echo to show a brief status, then run curl with a timeout:
 
 ```bash
-echo "Claudequarium: <STATE>" && curl -s -X POST http://localhost:4000/api/state -H "Content-Type: application/json" -d '{"entity_id": "<ENTITY_ID>", "state": "<STATE>"}' >/dev/null 2>&1
+echo "Claudequarium: <STATE>" && curl -s --max-time 5 -X POST <SERVER_URL>/api/state -H "Content-Type: application/json" -d '{"entity_id": "<ENTITY_ID>", "state": "<STATE>"}'
 ```
 
-**IMPORTANT:** Always use this format with echo prefix and `>/dev/null 2>&1` to suppress curl output. Only the "Claudequarium: STATE" message should be visible.
+**IMPORTANT:** Check the curl response. If it returns empty or fails, follow the Error Handling section below.
 
 **State mapping:**
 | Activity | State |
@@ -65,12 +73,33 @@ echo "Claudequarium: <STATE>" && curl -s -X POST http://localhost:4000/api/state
 
 You don't need to update state on every single tool call - just when the activity type changes.
 
+### Error Handling
+
+If any API call to the server fails (timeout, connection refused, no response), you must:
+
+1. **Stop sending further Claudequarium updates** - do not attempt more API calls
+2. **Inform the user** with this message:
+   ```
+   Claudequarium: Server failed to respond. Ending visualization session.
+   Entity ID: <ENTITY_ID>
+   ```
+3. **End the skill** - stop tracking state and treating this as an active Claudequarium session
+
+To detect failures, use curl with a timeout:
+```bash
+curl -s --max-time 5 -X POST <SERVER_URL>/api/state -H "Content-Type: application/json" -d '{"entity_id": "<ENTITY_ID>", "state": "<STATE>"}'
+```
+
+If the command returns empty or curl exits with a non-zero status, the server is unreachable.
+
+**Note:** The entity will remain visible in the browser until the server restarts (which clears all entities) or until the server's idle timeout removes it. This is expected behavior.
+
 ### When the User Asks to Wave
 
 When the user says "wave", "say hi", or asks the character to wave:
 
 ```bash
-echo "Claudequarium: Waving!" && curl -s -X POST http://localhost:4000/api/wave -H "Content-Type: application/json" -d '{"entity_id": "<ENTITY_ID>"}' >/dev/null 2>&1
+echo "Claudequarium: Waving!" && curl -s --max-time 5 -X POST <SERVER_URL>/api/wave -H "Content-Type: application/json" -d '{"entity_id": "<ENTITY_ID>"}'
 ```
 
 **What happens when you wave:**
@@ -85,7 +114,7 @@ echo "Claudequarium: Waving!" && curl -s -X POST http://localhost:4000/api/wave 
 When the user says goodbye, ends the conversation, or explicitly asks to disconnect:
 
 ```bash
-echo "Claudequarium: Despawning" && curl -s -X POST http://localhost:4000/api/despawn -H "Content-Type: application/json" -d '{"entity_id": "<ENTITY_ID>"}' >/dev/null 2>&1
+echo "Claudequarium: Despawning" && curl -s --max-time 5 -X POST <SERVER_URL>/api/despawn -H "Content-Type: application/json" -d '{"entity_id": "<ENTITY_ID>"}'
 ```
 
 ---
@@ -102,7 +131,7 @@ cd <path-to-claudequarium-server>
 npm start
 ```
 
-**To view:** Open http://localhost:4000 in a browser.
+**To view:** Open the server URL in a browser (default: http://localhost:4000).
 
 ---
 
@@ -121,8 +150,13 @@ npm start
 
 ## Configuration
 
-Environment variable:
-- `CLAUDEQUARIUM_SERVER`: Game server URL (default: `http://localhost:4000`)
+Copy `config.env.example` to `config.env` and edit the server URL:
+
+```env
+CLAUDEQUARIUM_SERVER=http://localhost:4000
+```
+
+Change this to your server's address if running on a different host or port.
 
 ---
 
@@ -131,6 +165,8 @@ Environment variable:
 ```
 claudequarium-skill/
 ├── SKILL.md                    # This file
+├── config.env                  # Server URL configuration (create from .example)
+├── config.env.example          # Example configuration
 └── hooks/                      # Shell scripts (for manual hook setup only)
     ├── session-start.sh
     ├── tool-use.sh
