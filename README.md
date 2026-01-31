@@ -1,8 +1,12 @@
 # Claudequarium
 
-A browser-based pixel art visualization where Claude Code agents appear as animated characters in a shared virtual office. When you run Claude Code, a character spawns and performs animations based on what the agent is doing.
+Claudequarium is a real-time visualization tool that brings your Claude Code sessions to life. Each time you start a Claude Code session and invoke the `/claudequarium` skill, a unique character spawns into a shared pixel art office environment.
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+As Claude reads files, writes code, plans tasks, or waits for input, your character moves around the virtual office performing contextual animations. Characters pace around thinking zones when Claude is searching through code, sit at desks when writing files, gather at whiteboards during planning, and wander the break room when idle.
+
+Multiple Claude Code sessions can connect simultaneously, creating a virtual office where you can watch all your active agents work together in real time. The visualization updates instantly via WebSocket, so you always see what your agents are doing at a glance.
+
+![Claudequarium](claudequarium-server/imgs/claudequarium_v1.jpg)
 
 ## Features
 
@@ -135,4 +139,4 @@ Press these keys in the browser:
 
 ## License
 
-MIT
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
