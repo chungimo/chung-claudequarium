@@ -94,8 +94,7 @@ echo "Claudequarium: Despawning" && curl -s -X POST http://localhost:4000/api/de
 
 The Claudequarium server must be running before using this skill.
 
-**Location:** The server is in the `claudequarium-server` directory relative to this skill, or may be at:
-- `D:/chung/gitstuff/chung-claudequarium/claudequarium-server/`
+**Location:** The server is in the `claudequarium-server` directory (sibling folder to `claudequarium-skill`).
 
 **To start:**
 ```bash
