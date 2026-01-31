@@ -1,0 +1,96 @@
+// API Client (Dev Mode Functions)
+
+import { API_URL } from './config.js';
+import { spawnOrder, selectedEntityId, incrementDevSessionCounter } from './state.js';
+
+export async function spawnEntity() {
+  const counter = incrementDevSessionCounter();
+  const sessionId = `dev-session-${counter}`;
+
+  try {
+    const response = await fetch(`${API_URL}/api/spawn`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId })
+    });
+    const data = await response.json();
+    console.log('Spawned:', data);
+    return data;
+  } catch (error) {
+    console.error('Spawn failed:', error);
+    return null;
+  }
+}
+
+export async function despawnEntity(entityId) {
+  try {
+    const response = await fetch(`${API_URL}/api/despawn`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entity_id: entityId })
+    });
+    const data = await response.json();
+    console.log('Despawned:', entityId, data);
+    return data;
+  } catch (error) {
+    console.error('Despawn failed:', error);
+    return null;
+  }
+}
+
+export async function despawnLast() {
+  if (spawnOrder.length === 0) {
+    console.log('No entities to despawn');
+    return null;
+  }
+  return despawnEntity(spawnOrder[spawnOrder.length - 1]);
+}
+
+export async function despawnAll() {
+  const ids = [...spawnOrder];
+  for (const entityId of ids) {
+    await despawnEntity(entityId);
+  }
+}
+
+export async function setEntityState(state) {
+  if (!selectedEntityId) {
+    console.log('No entity selected. Spawn one first.');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/api/state`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entity_id: selectedEntityId, state })
+    });
+    const data = await response.json();
+    console.log('State changed:', selectedEntityId, state, data);
+    return data;
+  } catch (error) {
+    console.error('State change failed:', error);
+    return null;
+  }
+}
+
+export async function waveEntity() {
+  if (!selectedEntityId) {
+    console.log('No entity selected. Spawn one first.');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/api/wave`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entity_id: selectedEntityId })
+    });
+    const data = await response.json();
+    console.log('Wave triggered:', selectedEntityId, data);
+    return data;
+  } catch (error) {
+    console.error('Wave failed:', error);
+    return null;
+  }
+}

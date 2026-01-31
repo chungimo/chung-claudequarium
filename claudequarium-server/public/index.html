@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claudequarium</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Claudequarium</h1>
+      <div class="status">
+        <span id="connection-status" class="disconnected">Disconnected</span>
+        <span id="entity-count">Entities: 0</span>
+      </div>
+    </header>
+
+    <div id="game-container" class="game-container">
+      <canvas id="game-canvas" width="1200" height="960"></canvas>
+    </div>
+
+    <div id="debug-controls" class="debug-controls">
+      <div class="debug-header">DEBUG</div>
+      <div class="controls">
+        <div class="dev-panel">
+          <span class="dev-label">ENTITIES</span>
+          <button id="btn-spawn">Spawn (S)</button>
+          <button id="btn-despawn">Despawn Last</button>
+          <button id="btn-despawn-all">Despawn All</button>
+        </div>
+
+        <div class="dev-panel state-panel">
+          <span class="dev-label">SET STATE</span>
+          <button id="btn-thinking" class="state-btn thinking">Thinking (1)</button>
+          <button id="btn-planning" class="state-btn planning">Planning (2)</button>
+          <button id="btn-coding" class="state-btn coding">Coding (3)</button>
+          <button id="btn-idle" class="state-btn idle">Idle (4)</button>
+        </div>
+
+        <div class="dev-panel">
+          <span class="dev-label">ACTIONS</span>
+          <button id="btn-wave" class="state-btn wave">Wave (W)</button>
+        </div>
+
+        <div class="dev-panel debug-panel">
+          <span class="dev-label">OVERLAYS</span>
+          <span class="debug-hint">C: Collision | Z: Zones | P: Paths | I: Info</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
