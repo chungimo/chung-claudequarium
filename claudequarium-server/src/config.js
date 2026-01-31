@@ -1,5 +1,8 @@
 // CC Office Server - Configuration
 
+// Load environment variables from config.env file
+require('dotenv').config({ path: require('path').join(__dirname, '../config.env') });
+
 const path = require('path');
 const os = require('os');
 

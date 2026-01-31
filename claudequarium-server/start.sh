@@ -1,8 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 # Claudequarium Server Startup Script
+# Configuration is loaded from config.env file
 
-export HOST="0.0.0.0"
-export PORT="4000"
+cd "$(dirname "$0")"
 
 echo "Starting Claudequarium Server..."
+echo "Configuration loaded from config.env"
 npm start
