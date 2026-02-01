@@ -7,7 +7,7 @@
 }
 
 body {
-  background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 50%, #16213e 100%);
+  background: #1e1e32;
   color: #eaeaea;
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100vh;
@@ -426,14 +426,14 @@ h1 {
    COMPONENT: Glass Panel (Reusable)
    ============================================ */
 .glass-panel {
-  background: rgba(20, 20, 35, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30, 30, 50, 0.9);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 /* ============================================
@@ -596,13 +596,160 @@ h1 {
     flex-direction: row;
     justify-content: center;
   }
+}
 
-  .menu-dropdown {
-    right: 50%;
-    transform: translateX(50%) translateY(-10px) scale(0.95);
-  }
+/* ============================================
+   COMPONENT: Modal
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s;
+}
 
-  .menu-dropdown.open {
-    transform: translateX(50%) translateY(0) scale(1);
-  }
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  min-width: 320px;
+  max-width: 90vw;
+  padding: 0;
+  opacity: 0;
+  transform: scale(0.9) translateY(-20px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.modal.open {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.modal-content {
+  padding: 20px 24px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   COMPONENT: Form Elements
+   ============================================ */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: rgba(78, 204, 163, 0.6);
+  box-shadow: 0 0 0 3px rgba(78, 204, 163, 0.15);
+}
+
+.form-error {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: rgba(255, 107, 107, 0.2);
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  border-radius: 8px;
+  font-size: 14px;
+  color: #ff6b6b;
+}
+
+/* ============================================
+   COMPONENT: Buttons
+   ============================================ */
+.btn {
+  padding: 12px 24px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: rgba(78, 204, 163, 0.8);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: rgba(78, 204, 163, 1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(78, 204, 163, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-secondary:active {
+  background: rgba(255, 255, 255, 0.2);
 }

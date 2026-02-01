@@ -10,6 +10,7 @@ import { spawnEntity, despawnLast, despawnAll, setEntityState, waveEntity } from
 import { loadMapData, isMapLoaded } from './mapData.js';
 import { toggleDebug, DEBUG } from './config.js';
 import { Menu } from './components/menu.js';
+import { LoginModal } from './components/loginModal.js';
 
 // ============================================
 // Game State
@@ -74,8 +75,7 @@ function handleMenuItemClick(itemId, _event) {
 
   switch (itemId) {
     case 'account':
-      // TODO: Implement login/account page
-      console.log('Navigate to login/account');
+      showLoginModal();
       break;
     case 'logs':
       // TODO: Implement logs page
@@ -90,6 +90,20 @@ function handleMenuItemClick(itemId, _event) {
       console.log('Logout');
       break;
   }
+}
+
+function showLoginModal() {
+  const modal = new LoginModal({
+    onLogin: (username, _password) => {
+      console.log('Login attempt:', username);
+      // TODO: Implement actual login logic
+      modal.close();
+    },
+    onClose: () => {
+      console.log('Login modal closed');
+    }
+  });
+  modal.create();
 }
 
 // ============================================
