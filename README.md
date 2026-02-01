@@ -15,6 +15,9 @@ Multiple Claude Code sessions can connect simultaneously, creating a virtual off
 - Wave animation when you say "wave" to your agent
 - WebSocket-based live updates across multiple browser clients
 - Cross-platform support (Windows, macOS, Linux)
+- User authentication with admin controls
+- System logs viewer for monitoring activity
+- Configurable debug mode for development
 
 ## Quick Start
 
@@ -51,22 +54,55 @@ Or add the skill to your global settings (`~/.claude/settings.json`):
 Server settings are stored in `claudequarium-server/config.env`:
 
 ```env
-HOST=0.0.0.0    # 0.0.0.0 for network access, 127.0.0.1 for localhost only
+HOST=0.0.0.0        # 0.0.0.0 for network access, 127.0.0.1 for localhost only
 PORT=4000
+JWT_SECRET=your-secret-key-here
 ```
 
 Copy `config.env.example` to `config.env` to get started.
+
+## Authentication
+
+Claudequarium includes a built-in authentication system:
+
+- **Default Admin**: On first run, a default admin account is created (check server logs for credentials)
+- **User Management**: Admins can create, edit, and delete users via Settings > User Accounts
+- **Protected Features**: Logs, Settings, and Admin features require login
+- **JWT Tokens**: Sessions are maintained via JWT tokens stored in localStorage
+
+### Menu Access
+
+| Logged Out | Logged In |
+|------------|-----------|
+| Login | Account |
+| | Logs |
+| | Settings |
+| | Logout |
 
 ## Project Structure
 
 ```
 chung-claudequarium/
 ├── claudequarium-server/
-│   ├── src/                  # Server code (Express + WebSocket)
+│   ├── src/
+│   │   ├── index.js          # Express + WebSocket server entry
+│   │   ├── api.js            # Entity REST API endpoints
+│   │   ├── auth.js           # Authentication routes
+│   │   ├── database.js       # SQLite setup
+│   │   └── logs.js           # Logging system
 │   ├── public/
+│   │   ├── site-framework/   # Reusable UI components
+│   │   │   ├── css/          # Variables, components, modal styles
+│   │   │   └── js/           # Auth, modal, settings, toast modules
+│   │   ├── css/
+│   │   │   └── debug.css     # Debug panel styles
 │   │   └── js/
-│   │       ├── renderer/     # Modular rendering (background, entities, animations)
-│   │       └── entities/     # Entity management (movement, state, wandering)
+│   │       ├── debug/        # Debug module (controls, overlays, config)
+│   │       ├── renderer/     # Modular rendering (background, entities)
+│   │       ├── entities/     # Entity management (movement, state)
+│   │       └── components/   # UI components (menu, login modal)
+│   ├── data/
+│   │   └── app.db            # SQLite database
 │   ├── map/                  # Tiled map source files
 │   ├── config.env            # Server configuration
 │   ├── start.sh              # Linux/macOS startup script
@@ -116,6 +152,8 @@ When connected via `/claudequarium`:
 
 ## API Endpoints
 
+### Entity API
+
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/spawn` | POST | Spawn a new entity |
@@ -125,17 +163,51 @@ When connected via `/claudequarium`:
 | `/api/entities` | GET | List all entities (debug) |
 | `/health` | GET | Server health check |
 
-## Debug Controls
+### Auth API
 
-Press these keys in the browser:
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/login` | POST | Login with username/password |
+| `/api/auth/me` | GET | Get current user info |
+| `/api/users` | GET | List all users (admin) |
+| `/api/users` | POST | Create new user (admin) |
+| `/api/users/:id` | PUT | Update user (admin) |
+| `/api/users/:id` | DELETE | Delete user (admin) |
+| `/api/logs` | GET | Get system logs (admin) |
 
-- `S` - Spawn test entity
-- `W` - Wave (selected entity)
-- `1-4` - Set state (Thinking/Planning/Coding/Idle)
-- `C` - Toggle collision grid
-- `Z` - Toggle zone boundaries
-- `P` - Toggle pathfinding visualization
-- `I` - Toggle entity info
+## Debug Mode
+
+Debug controls can be enabled via Settings > Site Settings > Developer Options.
+
+When enabled, a debug panel appears below the game canvas with:
+- Entity spawn/despawn controls
+- State change buttons
+- Overlay toggles
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `S` | Spawn test entity |
+| `W` | Wave (selected entity) |
+| `1-4` | Set state (Thinking/Planning/Coding/Idle) |
+| `C` | Toggle collision grid |
+| `Z` | Toggle zone boundaries |
+| `P` | Toggle pathfinding visualization |
+| `I` | Toggle entity info |
+
+## Site Framework
+
+Claudequarium includes a reusable UI component library with glass-panel aesthetics:
+
+- **Glass Panels**: Frosted glass containers with backdrop blur
+- **IFTA Fields**: Inline Floating Top-Aligned label inputs
+- **Buttons**: Primary, secondary, and danger variants
+- **Tables**: Sortable data tables with actions
+- **Modals**: Dialogs with dirty-form detection
+- **Toasts**: Bottom-right notification system
+
+See `public/site-framework/README.md` for component documentation.
 
 ## License
 
