@@ -4,15 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Claudequarium</title>
+  <link rel="icon" type="image/png" href="/imgs/logo.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
     <header class="header">
-      <h1>Claudequarium</h1>
-      <div class="status">
-        <span id="connection-status" class="disconnected">Disconnected</span>
-        <span id="entity-count">Entities: 0</span>
+      <div class="logo-title">
+        <img src="/imgs/logo.png" alt="Logo" class="header-logo">
+        <h1>Claudequarium</h1>
+      </div>
+      <div class="header-right">
+        <div class="status">
+          <span id="connection-status" class="disconnected">Disconnected</span>
+          <span id="entity-count">Entities: 0</span>
+        </div>
+        <div id="menu-container"></div>
       </div>
     </header>
 

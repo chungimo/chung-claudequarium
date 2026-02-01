@@ -1,0 +1,178 @@
+// Menu Component - Hamburger dropdown menu
+// Reusable glass-style dropdown menu with staggered animation
+
+export class Menu {
+  constructor(options = {}) {
+    this.containerId = options.containerId || 'menu-container';
+    this.isOpen = false;
+    this.isLoggedIn = options.isLoggedIn || false;
+    this.onItemClick = options.onItemClick || (() => {});
+
+    this.menuItems = [
+      { id: 'account', label: 'Login', loggedInLabel: 'Account', icon: '👤', requiresAuth: false },
+      { id: 'logs', label: 'Logs', icon: '📋', requiresAuth: false },
+      { id: 'settings', label: 'Settings', icon: '⚙️', requiresAuth: false },
+      { id: 'logout', label: 'Logout', icon: '🚪', requiresAuth: true, showWhenLoggedIn: true }
+    ];
+
+    this.element = null;
+    this.dropdownElement = null;
+  }
+
+  create() {
+    const container = document.getElementById(this.containerId);
+    if (!container) {
+      console.error(`Menu container #${this.containerId} not found`);
+      return null;
+    }
+
+    // Create menu wrapper
+    this.element = document.createElement('div');
+    this.element.className = 'menu-wrapper';
+    this.element.innerHTML = this.render();
+    container.appendChild(this.element);
+
+    // Cache dropdown reference
+    this.dropdownElement = this.element.querySelector('.menu-dropdown');
+
+    // Bind events
+    this.bindEvents();
+
+    return this.element;
+  }
+
+  render() {
+    const items = this.getVisibleItems();
+
+    return `
+      <button class="menu-hamburger" aria-label="Menu" aria-expanded="false">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+      <div class="menu-dropdown glass-panel" aria-hidden="true">
+        <div class="menu-items">
+          ${items.map((item, index) => `
+            <button class="menu-item" data-id="${item.id}" style="--item-index: ${index}">
+              <span class="menu-item-icon">${item.icon}</span>
+              <span class="menu-item-label">${this.isLoggedIn && item.loggedInLabel ? item.loggedInLabel : item.label}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  getVisibleItems() {
+    return this.menuItems.filter(item => {
+      if (item.showWhenLoggedIn && !this.isLoggedIn) return false;
+      if (item.requiresAuth && !this.isLoggedIn) return false;
+      return true;
+    });
+  }
+
+  bindEvents() {
+    const hamburger = this.element.querySelector('.menu-hamburger');
+    const dropdown = this.element.querySelector('.menu-dropdown');
+    const menuItems = this.element.querySelectorAll('.menu-item');
+
+    // Toggle menu on hamburger click
+    hamburger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggle();
+    });
+
+    // Handle menu item clicks
+    menuItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        const id = item.dataset.id;
+        this.onItemClick(id, e);
+        this.close();
+      });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (this.isOpen && !this.element.contains(e.target)) {
+        this.close();
+      }
+    });
+
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isOpen) {
+        this.close();
+      }
+    });
+  }
+
+  toggle() {
+    if (this.isOpen) {
+      this.close();
+    } else {
+      this.open();
+    }
+  }
+
+  open() {
+    if (this.isOpen) return;
+
+    this.isOpen = true;
+    const hamburger = this.element.querySelector('.menu-hamburger');
+    const dropdown = this.element.querySelector('.menu-dropdown');
+
+    hamburger.classList.add('active');
+    hamburger.setAttribute('aria-expanded', 'true');
+    dropdown.classList.add('open');
+    dropdown.setAttribute('aria-hidden', 'false');
+  }
+
+  close() {
+    if (!this.isOpen) return;
+
+    this.isOpen = false;
+    const hamburger = this.element.querySelector('.menu-hamburger');
+    const dropdown = this.element.querySelector('.menu-dropdown');
+
+    hamburger.classList.remove('active');
+    hamburger.setAttribute('aria-expanded', 'false');
+    dropdown.classList.remove('open');
+    dropdown.setAttribute('aria-hidden', 'true');
+  }
+
+  setLoggedIn(isLoggedIn) {
+    this.isLoggedIn = isLoggedIn;
+    this.refresh();
+  }
+
+  refresh() {
+    const itemsContainer = this.element.querySelector('.menu-items');
+    const items = this.getVisibleItems();
+
+    itemsContainer.innerHTML = items.map((item, index) => `
+      <button class="menu-item" data-id="${item.id}" style="--item-index: ${index}">
+        <span class="menu-item-icon">${item.icon}</span>
+        <span class="menu-item-label">${this.isLoggedIn && item.loggedInLabel ? item.loggedInLabel : item.label}</span>
+      </button>
+    `).join('');
+
+    // Rebind menu item events
+    const menuItems = this.element.querySelectorAll('.menu-item');
+    menuItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        const id = item.dataset.id;
+        this.onItemClick(id, e);
+        this.close();
+      });
+    });
+  }
+
+  destroy() {
+    if (this.element) {
+      this.element.remove();
+      this.element = null;
+    }
+  }
+}
+
+export default Menu;

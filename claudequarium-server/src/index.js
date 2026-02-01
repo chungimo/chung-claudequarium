@@ -29,6 +29,9 @@ app.get('/health', (req, res) => {
 // Serve static client files
 app.use(express.static(config.PUBLIC_PATH));
 
+// Serve images folder
+app.use('/imgs', express.static(require('path').join(__dirname, '../imgs')));
+
 // Fallback to index.html for SPA routing
 app.get('*', (req, res) => {
   res.sendFile('index.html', { root: config.PUBLIC_PATH });

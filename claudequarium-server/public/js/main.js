@@ -9,6 +9,7 @@ import { initUI } from './ui.js';
 import { spawnEntity, despawnLast, despawnAll, setEntityState, waveEntity } from './api.js';
 import { loadMapData, isMapLoaded } from './mapData.js';
 import { toggleDebug, DEBUG } from './config.js';
+import { Menu } from './components/menu.js';
 
 // ============================================
 // Game State
@@ -16,6 +17,7 @@ import { toggleDebug, DEBUG } from './config.js';
 
 let lastFrameTime = 0;
 let isInitialized = false;
+let mainMenu = null;
 
 // ============================================
 // Initialization
@@ -27,6 +29,14 @@ async function init() {
   // Initialize renderer first so we can show loading state
   initRenderer();
   initUI();
+
+  // Initialize menu
+  mainMenu = new Menu({
+    containerId: 'menu-container',
+    isLoggedIn: false,
+    onItemClick: handleMenuItemClick
+  });
+  mainMenu.create();
 
   // Start game loop immediately to show loading screen
   lastFrameTime = performance.now();
@@ -52,6 +62,33 @@ async function init() {
   } catch (error) {
     console.error('Failed to initialize game:', error);
     showError('Failed to load game resources. Please refresh the page.');
+  }
+}
+
+// ============================================
+// Menu Handlers
+// ============================================
+
+function handleMenuItemClick(itemId, _event) {
+  console.log(`Menu item clicked: ${itemId}`);
+
+  switch (itemId) {
+    case 'account':
+      // TODO: Implement login/account page
+      console.log('Navigate to login/account');
+      break;
+    case 'logs':
+      // TODO: Implement logs page
+      console.log('Navigate to logs');
+      break;
+    case 'settings':
+      // TODO: Implement settings page
+      console.log('Navigate to settings');
+      break;
+    case 'logout':
+      // TODO: Implement logout
+      console.log('Logout');
+      break;
   }
 }
 
@@ -215,5 +252,6 @@ window.addEventListener('load', init);
 window.gameDebug = {
   toggleDebug,
   DEBUG,
-  getEntities: () => Array.from(entities.values())
+  getEntities: () => Array.from(entities.values()),
+  getMenu: () => mainMenu
 };
