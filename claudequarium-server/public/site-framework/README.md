@@ -55,7 +55,9 @@ site-framework/
 │   ├── logs.js          # Logs modal with terminal view
 │   ├── toast.js         # Toast notifications
 │   ├── table.js         # Sortable table component
-│   └── field.js         # Form field utilities
+│   ├── field.js         # Form field utilities
+│   ├── menu.js          # Hamburger menu component
+│   └── loginModal.js    # Login modal dialog
 └── README.md            # This file
 
 src/site-framework/

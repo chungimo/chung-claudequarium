@@ -1,6 +1,7 @@
 # Claudequarium Server Stop Script (PowerShell)
 
-Push-Location $PSScriptRoot
+# Navigate to server root (parent of tests folder)
+Push-Location (Join-Path $PSScriptRoot "..")
 
 # Read port from config.env if it exists, otherwise default to 4000
 $port = 4000

@@ -84,32 +84,90 @@ Claudequarium includes a built-in authentication system:
 ```
 chung-claudequarium/
 ├── claudequarium-server/
-│   ├── src/
-│   │   ├── index.js          # Express + WebSocket server entry
-│   │   ├── api.js            # Entity REST API endpoints
-│   │   ├── auth.js           # Authentication routes
-│   │   ├── database.js       # SQLite setup
-│   │   └── logs.js           # Logging system
-│   ├── public/
-│   │   ├── site-framework/   # Reusable UI components
-│   │   │   ├── css/          # Variables, components, modal styles
-│   │   │   └── js/           # Auth, modal, settings, toast modules
-│   │   ├── css/
-│   │   │   └── debug.css     # Debug panel styles
-│   │   └── js/
-│   │       ├── debug/        # Debug module (controls, overlays, config)
-│   │       ├── renderer/     # Modular rendering (background, entities)
-│   │       ├── entities/     # Entity management (movement, state)
-│   │       └── components/   # UI components (menu, login modal)
-│   ├── data/
-│   │   └── app.db            # SQLite database
-│   ├── map/                  # Tiled map source files
-│   ├── config.env            # Server configuration
-│   ├── start.sh              # Linux/macOS startup script
-│   └── start.ps1             # Windows PowerShell startup script
+│   ├── src/                          # Backend server code
+│   │   ├── index.js                  # Express + WebSocket server entry
+│   │   ├── api.js                    # Entity REST API endpoints
+│   │   ├── config.js                 # Server configuration loader
+│   │   ├── entities.js               # Entity state management
+│   │   ├── websocket.js              # WebSocket broadcast handling
+│   │   └── site-framework/           # Auth & user management backend
+│   │       ├── index.js              # Backend entry point
+│   │       ├── database.js           # SQLite database setup
+│   │       ├── auth.js               # JWT authentication middleware
+│   │       └── routes.js             # Auth/users/logs API routes
+│   │
+│   ├── public/                       # Frontend static files
+│   │   ├── index.html                # Main HTML page
+│   │   ├── styles.css                # Main application styles
+│   │   ├── assets/                   # Images and sprites
+│   │   ├── data/                     # Map data JSON files
+│   │   │
+│   │   ├── js/                       # Game logic modules
+│   │   │   ├── main.js               # Application entry point
+│   │   │   ├── config.js             # Client configuration
+│   │   │   ├── mapData.js            # Map data loading
+│   │   │   ├── network.js            # WebSocket client
+│   │   │   ├── pathfinding.js        # A* pathfinding algorithm
+│   │   │   ├── state.js              # Game state management
+│   │   │   ├── ui.js                 # UI helper functions
+│   │   │   ├── entities/             # Entity system
+│   │   │   │   ├── index.js          # Entity exports
+│   │   │   │   ├── create.js         # Entity creation
+│   │   │   │   ├── movement.js       # Movement logic
+│   │   │   │   ├── state.js          # State transitions
+│   │   │   │   ├── wandering.js      # Wandering behavior
+│   │   │   │   └── utils.js          # Entity utilities
+│   │   │   └── renderer/             # Rendering system
+│   │   │       ├── index.js          # Renderer exports
+│   │   │       ├── background.js     # Background rendering
+│   │   │       ├── entity.js         # Entity sprite rendering
+│   │   │       ├── eyes.js           # Eye animations
+│   │   │       ├── indicators.js     # State indicators
+│   │   │       └── animations/       # Special animations
+│   │   │           └── wave.js       # Wave animation
+│   │   │
+│   │   ├── debug/                    # Debug module
+│   │   │   ├── index.js              # Debug exports
+│   │   │   ├── config.js             # Debug flags & persistence
+│   │   │   ├── api.js                # Debug API calls
+│   │   │   ├── controls.js           # Button handlers & shortcuts
+│   │   │   ├── overlays.js           # Debug visualizations
+│   │   │   └── styles.css            # Debug panel styles
+│   │   │
+│   │   └── site-framework/           # Reusable UI components
+│   │       ├── css/
+│   │       │   ├── variables.css     # Theme CSS variables
+│   │       │   ├── components.css    # Buttons, fields, tables
+│   │       │   └── modal.css         # Modal dialog styles
+│   │       ├── js/
+│   │       │   ├── index.js          # Component exports
+│   │       │   ├── auth.js           # Client-side authentication
+│   │       │   ├── modal.js          # Modal base class
+│   │       │   ├── settings.js       # Settings modal
+│   │       │   ├── logs.js           # Logs viewer modal
+│   │       │   ├── toast.js          # Toast notifications
+│   │       │   ├── table.js          # Sortable data tables
+│   │       │   ├── field.js          # IFTA form fields
+│   │       │   ├── menu.js           # Hamburger menu
+│   │       │   └── loginModal.js     # Login dialog
+│   │       └── README.md             # Component documentation
+│   │
+│   ├── db/                           # SQLite database (gitignored)
+│   ├── map/                          # Tiled map editor files
+│   │   ├── office_space.tmx          # Source map (edit in Tiled)
+│   │   ├── office_space_data.json    # Parsed map data
+│   │   ├── map-data/                 # Parser tools
+│   │   ├── assets/                   # Tileset images
+│   │   └── README.md                 # Map editing guide
+│   ├── tests/                        # Utility scripts
+│   │   ├── start.sh / start.ps1      # Server startup
+│   │   └── stop.sh / stop.ps1        # Server shutdown
+│   ├── config.env                    # Server configuration
+│   └── package.json                  # Node.js dependencies
+│
 └── claudequarium-skill/
-    ├── SKILL.md              # Skill definition for Claude Code
-    └── hooks/                # Shell hook scripts
+    ├── SKILL.md                      # Skill definition for Claude Code
+    └── hooks/                        # Shell hook scripts
 ```
 
 ## How It Works
@@ -138,17 +196,23 @@ When connected via `/claudequarium`:
 
 ## Scripts
 
+Utility scripts are located in `claudequarium-server/tests/`:
+
 **Linux/macOS:**
 ```bash
+cd claudequarium-server/tests
 ./start.sh    # Start server
 ./stop.sh     # Stop server
 ```
 
 **Windows PowerShell:**
 ```powershell
+cd claudequarium-server/tests
 ./start.ps1   # Start server
 ./stop.ps1    # Stop server
 ```
+
+*Note: The preferred method is `npm start` from the `claudequarium-server` directory.*
 
 ## API Endpoints
 

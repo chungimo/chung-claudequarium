@@ -2,7 +2,8 @@
 # Claudequarium Server Stop Script
 # Works on Linux and macOS
 
-cd "$(dirname "$0")"
+# Navigate to server root (parent of tests folder)
+cd "$(dirname "$0")/.."
 
 # Read port from config.env if it exists, otherwise default to 4000
 if [ -f config.env ]; then
