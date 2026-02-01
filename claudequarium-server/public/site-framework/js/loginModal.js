@@ -1,8 +1,20 @@
-// Login Modal Component
-// Uses Site Framework modal and auth
+/**
+ * Site Framework - Login Modal
+ * ============================================
+ *
+ * Login form modal using site framework components.
+ *
+ * USAGE:
+ *   import { LoginModal } from './site-framework/js/loginModal.js';
+ *
+ *   const modal = new LoginModal({
+ *     onLoginSuccess: (user) => { ... }
+ *   });
+ *   modal.open();
+ */
 
-import { Modal } from '../../site-framework/js/modal.js';
-import { auth } from '../../site-framework/js/auth.js';
+import { Modal } from './modal.js';
+import { auth } from './auth.js';
 
 export class LoginModal extends Modal {
   constructor(options = {}) {

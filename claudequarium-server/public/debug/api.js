@@ -1,8 +1,8 @@
 // Debug API Functions
 // Handles entity spawning, despawning, state changes, and actions
 
-import { API_URL } from '../config.js';
-import { spawnOrder, selectedEntityId, incrementDevSessionCounter } from '../state.js';
+import { API_URL } from '../js/config.js';
+import { spawnOrder, selectedEntityId, incrementDevSessionCounter } from '../js/state.js';
 
 /**
  * Spawn a new debug entity

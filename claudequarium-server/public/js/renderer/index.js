@@ -5,7 +5,7 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config.js';
 import { entities } from '../state.js';
 import { loadBackground, drawBackground, isBackgroundLoaded } from './background.js';
 import { drawEntity } from './entity.js';
-import { DEBUG, drawCollisionGrid, drawZoneBoundaries, drawPathfindingDebug } from '../debug/index.js';
+import { DEBUG, drawCollisionGrid, drawZoneBoundaries, drawPathfindingDebug } from '../../debug/index.js';
 
 // ============================================
 // Canvas State

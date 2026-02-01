@@ -1,5 +1,20 @@
-// Menu Component - Hamburger dropdown menu
-// Reusable glass-style dropdown menu with staggered animation
+/**
+ * Site Framework - Menu Component
+ * ============================================
+ *
+ * Hamburger dropdown menu with staggered animation.
+ * Supports login state-based item visibility.
+ *
+ * USAGE:
+ *   import { Menu } from './site-framework/js/menu.js';
+ *
+ *   const menu = new Menu({
+ *     containerId: 'menu-container',
+ *     isLoggedIn: false,
+ *     onItemClick: (id, event) => { ... }
+ *   });
+ *   menu.create();
+ */
 
 export class Menu {
   constructor(options = {}) {
@@ -77,7 +92,6 @@ export class Menu {
 
   bindEvents() {
     const hamburger = this.element.querySelector('.menu-hamburger');
-    const dropdown = this.element.querySelector('.menu-dropdown');
     const menuItems = this.element.querySelectorAll('.menu-item');
 
     // Toggle menu on hamburger click

@@ -7,7 +7,11 @@ import { connectWebSocket } from './network.js';
 import { initRenderer, render } from './renderer.js';
 import { initUI } from './ui.js';
 import { loadMapData, isMapLoaded } from './mapData.js';
-import { Menu } from './components/menu.js';
+
+// Site Framework imports
+import { auth } from '../site-framework/js/auth.js';
+import { Menu } from '../site-framework/js/menu.js';
+import { LoginModal } from '../site-framework/js/loginModal.js';
 
 // Debug module
 import {
@@ -19,11 +23,7 @@ import {
   saveDebugMode,
   setupDebugControls,
   setupDebugKeyboardShortcuts
-} from './debug/index.js';
-import { LoginModal } from './components/loginModal.js';
-
-// Site Framework imports
-import { auth } from '../site-framework/js/auth.js';
+} from '../debug/index.js';
 import { toast } from '../site-framework/js/toast.js';
 import { SettingsModal } from '../site-framework/js/settings.js';
 import { LogsModal } from '../site-framework/js/logs.js';

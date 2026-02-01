@@ -1,8 +1,8 @@
 // Debug Overlays
 // Handles drawing debug visualizations (collision grid, zones, pathfinding)
 
-import { getMapDimensions, getCollisionGrid, getZonesByType } from '../mapData.js';
-import { entities } from '../state.js';
+import { getMapDimensions, getCollisionGrid, getZonesByType } from '../js/mapData.js';
+import { entities } from '../js/state.js';
 
 /**
  * Draw collision grid overlay
