@@ -1,11 +1,11 @@
 // Canvas Renderer
 // Main renderer module - handles initialization and render loop
 
-import { CANVAS_WIDTH, CANVAS_HEIGHT, DEBUG } from '../config.js';
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config.js';
 import { entities } from '../state.js';
 import { loadBackground, drawBackground, isBackgroundLoaded } from './background.js';
 import { drawEntity } from './entity.js';
-import { drawCollisionGrid, drawZoneBoundaries, drawPathfindingDebug } from './debug.js';
+import { DEBUG, drawCollisionGrid, drawZoneBoundaries, drawPathfindingDebug } from '../debug/index.js';
 
 // ============================================
 // Canvas State

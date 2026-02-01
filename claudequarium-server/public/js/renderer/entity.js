@@ -1,7 +1,8 @@
 // Entity Rendering
 // Handles drawing individual entities (body, selection, shadow)
 
-import { ENTITY_SIZE, DEBUG } from '../config.js';
+import { ENTITY_SIZE } from '../config.js';
+import { DEBUG } from '../debug/index.js';
 import { selectedEntityId } from '../state.js';
 import { drawHappyEyes, drawEntityEyesRelative } from './eyes.js';
 import { drawStateIndicator } from './indicators.js';

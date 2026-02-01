@@ -1,0 +1,479 @@
+/* ============================================
+   Site Framework - Base Components
+   ============================================
+
+   USAGE: Import after variables.css
+   Contains reusable component styles for:
+   - Glass panels
+   - Buttons
+   - Form fields (IFTA style)
+   - Tables
+
+   ENTRY POINTS:
+   - .sf-glass-panel: Base glass effect container
+   - .sf-btn: Button base class
+   - .sf-field: IFTA-style input field
+   - .sf-table: Sortable table
+   ============================================ */
+
+/* ============================================
+   Glass Panel
+   ============================================ */
+.sf-glass-panel {
+  background: var(--sf-bg-panel);
+  backdrop-filter: blur(var(--sf-glass-blur)) saturate(var(--sf-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--sf-glass-blur)) saturate(var(--sf-glass-saturate));
+  border: 1px solid var(--sf-border-light);
+  border-radius: var(--sf-radius-lg);
+  box-shadow: var(--sf-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.sf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sf-spacing-sm);
+  padding: 12px 24px;
+  font-family: var(--sf-font-family);
+  font-size: var(--sf-font-size-md);
+  font-weight: 500;
+  border: none;
+  border-radius: var(--sf-radius-md);
+  cursor: pointer;
+  transition: all var(--sf-transition-fast);
+  white-space: nowrap;
+}
+
+.sf-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary button - highlighted action */
+.sf-btn-primary {
+  background: rgba(var(--sf-primary-rgb), 0.8);
+  color: var(--sf-text-primary);
+}
+
+.sf-btn-primary:hover:not(:disabled) {
+  background: rgba(var(--sf-primary-rgb), 1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--sf-primary-rgb), 0.3);
+}
+
+.sf-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Secondary button - subtle/cancel action */
+.sf-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--sf-text-secondary);
+}
+
+.sf-btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.sf-btn-secondary:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Danger button - destructive actions */
+.sf-btn-danger {
+  background: rgba(var(--sf-danger-rgb), 0.2);
+  color: var(--sf-danger);
+  border: 1px solid rgba(var(--sf-danger-rgb), 0.3);
+}
+
+.sf-btn-danger:hover:not(:disabled) {
+  background: rgba(var(--sf-danger-rgb), 0.3);
+  border-color: rgba(var(--sf-danger-rgb), 0.5);
+}
+
+/* Icon-only button */
+.sf-btn-icon {
+  padding: 8px;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+/* ============================================
+   Icons - Solid white with shadow
+   ============================================ */
+.sf-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7), 0 0 1px rgba(0, 0, 0, 0.5);
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+}
+
+/* Icon sizes */
+.sf-icon-sm { font-size: 14px; }
+.sf-icon-md { font-size: 16px; }
+.sf-icon-lg { font-size: 20px; }
+
+/* Common icons using CSS pseudo-elements */
+.sf-icon-edit::before { content: '✎'; }
+.sf-icon-delete::before { content: '✕'; }
+.sf-icon-clear::before { content: '⌧'; }
+.sf-icon-add::before { content: '+'; font-weight: 600; }
+.sf-icon-close::before { content: '×'; }
+.sf-icon-check::before { content: '✓'; }
+.sf-icon-settings::before { content: '⚙'; }
+.sf-icon-refresh::before { content: '↻'; }
+.sf-icon-search::before { content: '⌕'; }
+.sf-icon-menu::before { content: '☰'; }
+.sf-icon-user::before { content: '◯'; }
+.sf-icon-users::before { content: '⫿'; }
+.sf-icon-link::before { content: '⛓'; }
+.sf-icon-logs::before { content: '☰'; }
+.sf-icon-logout::before { content: '⏻'; }
+.sf-icon-info::before { content: 'ℹ'; }
+.sf-icon-warning::before { content: '⚠'; }
+.sf-icon-success::before { content: '✓'; }
+
+/* Icons inside colored containers inherit color */
+.sf-danger .sf-icon,
+.sf-warning .sf-icon,
+.sf-success .sf-icon,
+.sf-info .sf-icon,
+.sf-confirm-icon .sf-icon {
+  color: inherit;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   IFTA-Style Form Fields
+   ============================================
+   Inline Floating Top-Aligned labels that
+   move when the field is focused or has value.
+   ============================================ */
+.sf-field {
+  position: relative;
+  margin-bottom: var(--sf-spacing-md);
+}
+
+.sf-field-input {
+  width: 100%;
+  padding: 26px 16px 10px;
+  background: var(--sf-bg-input);
+  border: 1px solid var(--sf-border-light);
+  border-radius: var(--sf-radius-md);
+  font-family: var(--sf-font-family);
+  font-size: var(--sf-font-size-md);
+  color: var(--sf-text-primary);
+  transition: border-color var(--sf-transition-fast), box-shadow var(--sf-transition-fast);
+  outline: none;
+}
+
+.sf-field-input::placeholder {
+  color: transparent;
+}
+
+.sf-field-input:focus {
+  border-color: var(--sf-border-focus);
+  box-shadow: 0 0 0 3px rgba(var(--sf-primary-rgb), 0.15);
+}
+
+/* IFTA Label */
+.sf-field-label {
+  position: absolute;
+  left: 16px;
+  top: 28px;  /* Fixed position: center of input field (not container) */
+  transform: translateY(-50%);
+  font-size: var(--sf-font-size-md);
+  color: var(--sf-text-muted);
+  pointer-events: none;
+  transition: all var(--sf-transition-fast);
+  background: transparent;
+  padding: 0 4px;
+}
+
+/* Label floats up when focused or has value */
+.sf-field-input:focus + .sf-field-label,
+.sf-field-input:not(:placeholder-shown) + .sf-field-label {
+  top: 10px;
+  transform: translateY(0);
+  font-size: var(--sf-font-size-xs);
+  color: var(--sf-text-secondary);
+}
+
+.sf-field-input:focus + .sf-field-label {
+  color: var(--sf-primary);
+}
+
+/* Required field indicator */
+.sf-field-required .sf-field-label::after {
+  content: ' *';
+  color: var(--sf-danger);
+}
+
+/* Error state */
+.sf-field-error .sf-field-input {
+  border-color: var(--sf-border-error);
+}
+
+.sf-field-error .sf-field-input:focus {
+  box-shadow: 0 0 0 3px rgba(var(--sf-danger-rgb), 0.15);
+}
+
+.sf-field-error .sf-field-label {
+  color: var(--sf-danger);
+}
+
+.sf-field-error-message {
+  display: none;
+  margin-top: var(--sf-spacing-xs);
+  font-size: var(--sf-font-size-sm);
+  color: var(--sf-danger);
+}
+
+.sf-field-error .sf-field-error-message {
+  display: block;
+}
+
+/* Help text / info icon */
+.sf-field-help {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--sf-font-size-xs);
+  color: var(--sf-text-muted);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  cursor: help;
+}
+
+.sf-field-help:hover::after {
+  content: attr(data-help);
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px 12px;
+  background: var(--sf-bg-panel);
+  border: 1px solid var(--sf-border-light);
+  border-radius: var(--sf-radius-sm);
+  font-size: var(--sf-font-size-sm);
+  color: var(--sf-text-secondary);
+  white-space: nowrap;
+  z-index: var(--sf-z-tooltip);
+  box-shadow: var(--sf-shadow-md);
+}
+
+/* Hint text below field */
+.sf-field-hint {
+  margin-top: var(--sf-spacing-xs);
+  font-size: var(--sf-font-size-xs);
+  color: var(--sf-text-muted);
+}
+
+/* Checkbox field */
+.sf-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--sf-spacing-sm);
+  cursor: pointer;
+}
+
+.sf-checkbox-input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--sf-primary);
+  cursor: pointer;
+}
+
+.sf-checkbox-label {
+  font-size: var(--sf-font-size-md);
+  color: var(--sf-text-secondary);
+}
+
+/* ============================================
+   Sortable Table
+   ============================================ */
+.sf-table-container {
+  overflow-x: auto;
+  border-radius: var(--sf-radius-md);
+  border: 1px solid var(--sf-border-light);
+}
+
+.sf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--sf-font-size-md);
+}
+
+.sf-table th,
+.sf-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--sf-border-light);
+}
+
+.sf-table th {
+  background: rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+  color: var(--sf-text-secondary);
+  white-space: nowrap;
+}
+
+.sf-table th.sf-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sf-table th.sf-sortable:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.sf-table th.sf-sortable::after {
+  content: '';
+  display: inline-block;
+  margin-left: 8px;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 4px solid var(--sf-text-muted);
+  vertical-align: middle;
+  opacity: 0.3;
+}
+
+.sf-table th.sf-sort-asc::after {
+  border-bottom: none;
+  border-top: 4px solid var(--sf-primary);
+  opacity: 1;
+}
+
+.sf-table th.sf-sort-desc::after {
+  border-bottom: 4px solid var(--sf-primary);
+  opacity: 1;
+}
+
+.sf-table tbody tr {
+  transition: background var(--sf-transition-fast);
+}
+
+.sf-table tbody tr:hover {
+  background: var(--sf-bg-hover);
+}
+
+.sf-table tbody tr.sf-clickable {
+  cursor: pointer;
+}
+
+.sf-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Table action buttons */
+.sf-table-actions {
+  display: flex;
+  gap: var(--sf-spacing-sm);
+  justify-content: flex-end;
+}
+
+/* ============================================
+   Notification Toast
+   ============================================ */
+.sf-toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: var(--sf-z-notification);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sf-spacing-sm);
+}
+
+.sf-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--sf-spacing-md);
+  padding: 16px 20px;
+  background: var(--sf-bg-panel);
+  border: 1px solid var(--sf-border-light);
+  border-radius: var(--sf-radius-md);
+  box-shadow: var(--sf-shadow-lg);
+  animation: sf-toast-in 0.3s ease;
+  max-width: 400px;
+}
+
+.sf-toast.sf-toast-out {
+  animation: sf-toast-out 0.3s ease forwards;
+}
+
+@keyframes sf-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sf-toast-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.sf-toast-icon {
+  font-size: 20px;
+}
+
+.sf-toast-content {
+  flex: 1;
+}
+
+.sf-toast-title {
+  font-weight: 600;
+  color: var(--sf-text-primary);
+  margin-bottom: 2px;
+}
+
+.sf-toast-message {
+  font-size: var(--sf-font-size-sm);
+  color: var(--sf-text-secondary);
+}
+
+.sf-toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--sf-primary);
+  border-radius: 0 0 var(--sf-radius-md) var(--sf-radius-md);
+  animation: sf-toast-progress linear forwards;
+}
+
+@keyframes sf-toast-progress {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+.sf-toast-info { border-left: 3px solid var(--sf-info); }
+.sf-toast-success { border-left: 3px solid var(--sf-success); }
+.sf-toast-warning { border-left: 3px solid var(--sf-warning); }
+.sf-toast-danger { border-left: 3px solid var(--sf-danger); }

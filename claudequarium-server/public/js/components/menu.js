@@ -9,10 +9,10 @@ export class Menu {
     this.onItemClick = options.onItemClick || (() => {});
 
     this.menuItems = [
-      { id: 'account', label: 'Login', loggedInLabel: 'Account', icon: '👤', requiresAuth: false },
-      { id: 'logs', label: 'Logs', icon: '📋', requiresAuth: false },
-      { id: 'settings', label: 'Settings', icon: '⚙️', requiresAuth: false },
-      { id: 'logout', label: 'Logout', icon: '🚪', requiresAuth: true, showWhenLoggedIn: true }
+      { id: 'account', label: 'Login', loggedInLabel: 'Account', iconClass: 'sf-icon-user', showWhenLoggedOut: true, showWhenLoggedIn: true },
+      { id: 'logs', label: 'Logs', iconClass: 'sf-icon-logs', showWhenLoggedIn: true },
+      { id: 'settings', label: 'Settings', iconClass: 'sf-icon-settings', showWhenLoggedIn: true },
+      { id: 'logout', label: 'Logout', iconClass: 'sf-icon-logout', showWhenLoggedIn: true }
     ];
 
     this.element = null;
@@ -50,11 +50,11 @@ export class Menu {
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
       </button>
-      <div class="menu-dropdown glass-panel" aria-hidden="true">
+      <div class="menu-dropdown sf-glass-panel" aria-hidden="true">
         <div class="menu-items">
           ${items.map((item, index) => `
             <button class="menu-item" data-id="${item.id}" style="--item-index: ${index}">
-              <span class="menu-item-icon">${item.icon}</span>
+              <span class="menu-item-icon"><i class="sf-icon ${item.iconClass}"></i></span>
               <span class="menu-item-label">${this.isLoggedIn && item.loggedInLabel ? item.loggedInLabel : item.label}</span>
             </button>
           `).join('')}
@@ -65,9 +65,13 @@ export class Menu {
 
   getVisibleItems() {
     return this.menuItems.filter(item => {
-      if (item.showWhenLoggedIn && !this.isLoggedIn) return false;
-      if (item.requiresAuth && !this.isLoggedIn) return false;
-      return true;
+      if (this.isLoggedIn) {
+        // When logged in, show items with showWhenLoggedIn flag
+        return item.showWhenLoggedIn === true;
+      } else {
+        // When logged out, only show items with showWhenLoggedOut flag
+        return item.showWhenLoggedOut === true;
+      }
     });
   }
 
@@ -151,7 +155,7 @@ export class Menu {
 
     itemsContainer.innerHTML = items.map((item, index) => `
       <button class="menu-item" data-id="${item.id}" style="--item-index: ${index}">
-        <span class="menu-item-icon">${item.icon}</span>
+        <span class="menu-item-icon"><i class="sf-icon ${item.iconClass}"></i></span>
         <span class="menu-item-label">${this.isLoggedIn && item.loggedInLabel ? item.loggedInLabel : item.label}</span>
       </button>
     `).join('');

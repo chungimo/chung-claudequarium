@@ -1,39 +1,35 @@
 // Login Modal Component
-// Extends Modal for user authentication
+// Uses Site Framework modal and auth
 
-import { Modal } from './modal.js';
+import { Modal } from '../../site-framework/js/modal.js';
+import { auth } from '../../site-framework/js/auth.js';
 
 export class LoginModal extends Modal {
   constructor(options = {}) {
     super({
-      id: 'login-modal',
       title: 'Login',
+      closable: true,
+      content: `
+        <div class="sf-field sf-field-required">
+          <input type="text" id="login-username" class="sf-field-input" placeholder=" " autocomplete="username">
+          <label class="sf-field-label" for="login-username">Username</label>
+        </div>
+        <div class="sf-field sf-field-required">
+          <input type="password" id="login-password" class="sf-field-input" placeholder=" " autocomplete="current-password">
+          <label class="sf-field-label" for="login-password">Password</label>
+        </div>
+      `,
+      footer: `
+        <button class="sf-btn sf-btn-primary" id="login-submit">Login</button>
+        <button class="sf-btn sf-btn-secondary" id="login-cancel">Cancel</button>
+      `,
       ...options
     });
-    this.onLogin = options.onLogin || (() => {});
+
+    this.onLoginSuccess = options.onLoginSuccess || (() => {});
   }
 
-  renderContent() {
-    return `
-      <div class="form-group">
-        <label class="form-label" for="login-username">Username</label>
-        <input type="text" id="login-username" class="form-input" placeholder="Enter username" autocomplete="username">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="login-password">Password</label>
-        <input type="password" id="login-password" class="form-input" placeholder="Enter password" autocomplete="current-password">
-      </div>
-    `;
-  }
-
-  renderFooter() {
-    return `
-      <button class="btn btn-primary" id="login-submit">Login</button>
-      <button class="btn btn-secondary" id="login-cancel">Cancel</button>
-    `;
-  }
-
-  bindEvents() {
+  _bindEvents() {
     const submitBtn = this.element.querySelector('#login-submit');
     const cancelBtn = this.element.querySelector('#login-cancel');
     const usernameInput = this.element.querySelector('#login-username');
@@ -55,7 +51,7 @@ export class LoginModal extends Modal {
     setTimeout(() => usernameInput.focus(), 100);
   }
 
-  handleLogin() {
+  async handleLogin() {
     const username = this.element.querySelector('#login-username').value.trim();
     const password = this.element.querySelector('#login-password').value;
 
@@ -64,18 +60,21 @@ export class LoginModal extends Modal {
       return;
     }
 
-    this.onLogin(username, password);
-  }
+    // Disable button during login
+    const submitBtn = this.element.querySelector('#login-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in...';
 
-  showError(message) {
-    let errorEl = this.element.querySelector('.form-error');
-    if (!errorEl) {
-      errorEl = document.createElement('div');
-      errorEl.className = 'form-error';
-      const content = this.element.querySelector('.modal-content');
-      content.insertBefore(errorEl, content.firstChild);
+    const result = await auth.login(username, password);
+
+    if (result.success) {
+      this.close();
+      this.onLoginSuccess(result.user);
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Login';
+      this.showError(result.error || 'Login failed');
     }
-    errorEl.textContent = message;
   }
 }
 

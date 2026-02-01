@@ -1,8 +1,12 @@
-// API Client (Dev Mode Functions)
+// Debug API Functions
+// Handles entity spawning, despawning, state changes, and actions
 
-import { API_URL } from './config.js';
-import { spawnOrder, selectedEntityId, incrementDevSessionCounter } from './state.js';
+import { API_URL } from '../config.js';
+import { spawnOrder, selectedEntityId, incrementDevSessionCounter } from '../state.js';
 
+/**
+ * Spawn a new debug entity
+ */
 export async function spawnEntity() {
   const counter = incrementDevSessionCounter();
   const sessionId = `dev-session-${counter}`;
@@ -22,6 +26,9 @@ export async function spawnEntity() {
   }
 }
 
+/**
+ * Despawn a specific entity by ID
+ */
 export async function despawnEntity(entityId) {
   try {
     const response = await fetch(`${API_URL}/api/despawn`, {
@@ -38,6 +45,9 @@ export async function despawnEntity(entityId) {
   }
 }
 
+/**
+ * Despawn the most recently spawned entity
+ */
 export async function despawnLast() {
   if (spawnOrder.length === 0) {
     console.log('No entities to despawn');
@@ -46,6 +56,9 @@ export async function despawnLast() {
   return despawnEntity(spawnOrder[spawnOrder.length - 1]);
 }
 
+/**
+ * Despawn all spawned entities
+ */
 export async function despawnAll() {
   const ids = [...spawnOrder];
   for (const entityId of ids) {
@@ -53,6 +66,9 @@ export async function despawnAll() {
   }
 }
 
+/**
+ * Set the state of the currently selected entity
+ */
 export async function setEntityState(state) {
   if (!selectedEntityId) {
     console.log('No entity selected. Spawn one first.');
@@ -74,6 +90,9 @@ export async function setEntityState(state) {
   }
 }
 
+/**
+ * Make the selected entity wave
+ */
 export async function waveEntity() {
   if (!selectedEntityId) {
     console.log('No entity selected. Spawn one first.');

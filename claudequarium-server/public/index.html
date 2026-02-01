@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Claudequarium</title>
   <link rel="icon" type="image/png" href="/imgs/logo.png">
+  <!-- Site Framework CSS -->
+  <link rel="stylesheet" href="site-framework/css/variables.css">
+  <link rel="stylesheet" href="site-framework/css/components.css">
+  <link rel="stylesheet" href="site-framework/css/modal.css">
+  <!-- App CSS -->
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/debug.css">
 </head>
 <body>
   <div class="container">
@@ -18,6 +24,7 @@
         <div class="status">
           <span id="connection-status" class="disconnected">Disconnected</span>
           <span id="entity-count">Entities: 0</span>
+          <span id="user-display" class="hidden"></span>
         </div>
         <div id="menu-container"></div>
       </div>
@@ -27,7 +34,7 @@
       <canvas id="game-canvas" width="1200" height="960"></canvas>
     </div>
 
-    <div id="debug-controls" class="debug-controls">
+    <div id="debug-controls" class="debug-controls hidden">
       <div class="debug-header">DEBUG</div>
       <div class="controls">
         <div class="dev-panel">

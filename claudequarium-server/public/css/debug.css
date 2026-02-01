@@ -1,0 +1,235 @@
+/* ============================================
+   Debug Controls Styles
+   ============================================
+
+   Styles for the debug control panel.
+   Import after main styles.css
+   ============================================ */
+
+/* Debug Controls Container */
+.debug-controls {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 15px;
+  background: rgba(var(--sf-danger-rgb), 0.05);
+  border: 1px solid rgba(var(--sf-danger-rgb), 0.2);
+  border-radius: 16px;
+  padding: 12px 16px 16px;
+}
+
+.debug-controls.hidden {
+  display: none;
+}
+
+.debug-header {
+  color: rgba(var(--sf-danger-rgb), 0.8);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+
+/* Controls Layout */
+.debug-controls .controls {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* Developer Panel */
+.dev-panel {
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.dev-panel:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.dev-label {
+  color: rgba(var(--sf-danger-rgb), 0.9);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Panel Buttons */
+.dev-panel button {
+  padding: 8px 16px;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.dev-panel button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.dev-panel button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.dev-panel button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Spawn Button */
+#btn-spawn {
+  background: linear-gradient(135deg, var(--sf-primary), #3db892);
+  color: #0d0d1a;
+  box-shadow: 0 4px 15px rgba(var(--sf-primary-rgb), 0.3);
+}
+
+#btn-spawn:hover {
+  background: linear-gradient(135deg, #5fd9b0, var(--sf-primary));
+  box-shadow: 0 6px 20px rgba(var(--sf-primary-rgb), 0.4);
+}
+
+/* Despawn Button */
+#btn-despawn {
+  background: linear-gradient(135deg, var(--sf-danger), #e55a5a);
+  color: #0d0d1a;
+  box-shadow: 0 4px 15px rgba(var(--sf-danger-rgb), 0.3);
+}
+
+#btn-despawn:hover {
+  background: linear-gradient(135deg, #ff7f7f, var(--sf-danger));
+  box-shadow: 0 6px 20px rgba(var(--sf-danger-rgb), 0.4);
+}
+
+/* Despawn All Button */
+#btn-despawn-all {
+  background: linear-gradient(135deg, #aa96da, #9980cc);
+  color: #0d0d1a;
+  box-shadow: 0 4px 15px rgba(170, 150, 218, 0.3);
+}
+
+#btn-despawn-all:hover {
+  background: linear-gradient(135deg, #bba8e8, #aa96da);
+  box-shadow: 0 6px 20px rgba(170, 150, 218, 0.4);
+}
+
+/* State Panel */
+.state-panel {
+  border-color: rgba(78, 205, 196, 0.3);
+}
+
+.state-panel .dev-label {
+  color: rgba(78, 205, 196, 0.9);
+}
+
+/* State Buttons */
+.state-btn {
+  font-size: 12px !important;
+  padding: 6px 12px !important;
+}
+
+.state-btn.thinking {
+  background: linear-gradient(135deg, #ffe66d, #ffd93d);
+  color: #1a1a2e;
+  box-shadow: 0 4px 15px rgba(255, 230, 109, 0.3);
+}
+
+.state-btn.thinking:hover {
+  background: linear-gradient(135deg, #fff080, #ffe66d);
+  box-shadow: 0 6px 20px rgba(255, 230, 109, 0.4);
+}
+
+.state-btn.planning {
+  background: linear-gradient(135deg, var(--sf-primary), #3db892);
+  color: #0d0d1a;
+  box-shadow: 0 4px 15px rgba(var(--sf-primary-rgb), 0.3);
+}
+
+.state-btn.planning:hover {
+  background: linear-gradient(135deg, #5fd9b0, var(--sf-primary));
+  box-shadow: 0 6px 20px rgba(var(--sf-primary-rgb), 0.4);
+}
+
+.state-btn.coding {
+  background: linear-gradient(135deg, #4ecdc4, #3dbdb5);
+  color: #0d0d1a;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.state-btn.coding:hover {
+  background: linear-gradient(135deg, #5fd9d2, #4ecdc4);
+  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+}
+
+.state-btn.idle {
+  background: linear-gradient(135deg, #aa96da, #9980cc);
+  color: #0d0d1a;
+  box-shadow: 0 4px 15px rgba(170, 150, 218, 0.3);
+}
+
+.state-btn.idle:hover {
+  background: linear-gradient(135deg, #bba8e8, #aa96da);
+  box-shadow: 0 6px 20px rgba(170, 150, 218, 0.4);
+}
+
+.state-btn.wave {
+  background: linear-gradient(135deg, #ffdd59, #ffc107);
+  color: #1a1a2e;
+  box-shadow: 0 4px 15px rgba(255, 221, 89, 0.3);
+}
+
+.state-btn.wave:hover {
+  background: linear-gradient(135deg, #ffe680, #ffdd59);
+  box-shadow: 0 6px 20px rgba(255, 221, 89, 0.4);
+}
+
+/* Debug Panel (Overlays) */
+.debug-panel {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.debug-panel .dev-label {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.debug-hint {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .debug-controls {
+    padding: 10px 12px 14px;
+  }
+}

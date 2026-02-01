@@ -1,0 +1,93 @@
+/* ============================================
+   Site Framework - CSS Variables
+   ============================================
+
+   USAGE: Import this file first in your main stylesheet.
+   These variables define the theme and can be easily
+   modified to change the entire site's look and feel.
+
+   COMMON CHANGE POINTS:
+   - Primary color: --sf-primary (default: teal/green)
+   - Background: --sf-bg-* variables
+   - Border radius: --sf-radius-*
+   ============================================ */
+
+:root {
+  /* ---- Primary Colors ---- */
+  --sf-primary: #4ecca3;
+  --sf-primary-rgb: 78, 204, 163;
+  --sf-primary-hover: #5fd9b3;
+  --sf-primary-active: #3db892;
+
+  /* ---- Status Colors ---- */
+  --sf-success: #4ecca3;
+  --sf-success-rgb: 78, 204, 163;
+  --sf-warning: #f0ad4e;
+  --sf-warning-rgb: 240, 173, 78;
+  --sf-danger: #ff6b6b;
+  --sf-danger-rgb: 255, 107, 107;
+  --sf-info: #5bc0de;
+  --sf-info-rgb: 91, 192, 222;
+
+  /* ---- Background Colors ---- */
+  --sf-bg-body: #1e1e32;
+  --sf-bg-panel: rgba(30, 30, 50, 0.9);
+  --sf-bg-input: rgba(0, 0, 0, 0.3);
+  --sf-bg-hover: rgba(255, 255, 255, 0.08);
+  --sf-bg-active: rgba(255, 255, 255, 0.12);
+
+  /* ---- Text Colors ---- */
+  --sf-text-primary: #ffffff;
+  --sf-text-secondary: rgba(255, 255, 255, 0.8);
+  --sf-text-muted: rgba(255, 255, 255, 0.5);
+  --sf-text-placeholder: rgba(255, 255, 255, 0.4);
+
+  /* ---- Border Colors ---- */
+  --sf-border-light: rgba(255, 255, 255, 0.12);
+  --sf-border-medium: rgba(255, 255, 255, 0.2);
+  --sf-border-focus: rgba(var(--sf-primary-rgb), 0.6);
+  --sf-border-error: rgba(var(--sf-danger-rgb), 0.6);
+
+  /* ---- Spacing ---- */
+  --sf-spacing-xs: 4px;
+  --sf-spacing-sm: 8px;
+  --sf-spacing-md: 16px;
+  --sf-spacing-lg: 24px;
+  --sf-spacing-xl: 32px;
+
+  /* ---- Border Radius ---- */
+  --sf-radius-sm: 4px;
+  --sf-radius-md: 8px;
+  --sf-radius-lg: 12px;
+
+  /* ---- Shadows ---- */
+  --sf-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --sf-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --sf-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+  /* ---- Glass Effect ---- */
+  --sf-glass-blur: 24px;
+  --sf-glass-saturate: 1.2;
+
+  /* ---- Transitions ---- */
+  --sf-transition-fast: 0.15s ease;
+  --sf-transition-normal: 0.25s ease;
+  --sf-transition-slow: 0.4s ease;
+
+  /* ---- Z-Index Layers ---- */
+  --sf-z-dropdown: 1000;
+  --sf-z-modal: 2000;
+  --sf-z-modal-stacked: 2100;
+  --sf-z-notification: 3000;
+  --sf-z-tooltip: 4000;
+
+  /* ---- Typography ---- */
+  --sf-font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --sf-font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+  --sf-font-size-xs: 12px;
+  --sf-font-size-sm: 13px;
+  --sf-font-size-md: 14px;
+  --sf-font-size-lg: 16px;
+  --sf-font-size-xl: 20px;
+  --sf-font-size-xxl: 24px;
+}

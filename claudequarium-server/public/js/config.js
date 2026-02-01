@@ -58,21 +58,4 @@ export const STATE_TO_ZONE_TYPE = {
 // Valid game states
 export const GAME_STATES = ['SPAWNED', 'THINKING', 'PLANNING', 'CODING', 'IDLE'];
 
-// ============================================
-// Debug Options
-// ============================================
-
-export const DEBUG = {
-  showCollisionGrid: false,
-  showZoneBoundaries: false,
-  showPathfinding: false,
-  showEntityInfo: true
-};
-
-// Toggle debug option
-export function toggleDebug(option) {
-  if (option in DEBUG) {
-    DEBUG[option] = !DEBUG[option];
-    console.log(`Debug ${option}: ${DEBUG[option]}`);
-  }
-}
+// Debug options are now in js/debug/config.js

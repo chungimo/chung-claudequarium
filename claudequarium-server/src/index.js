@@ -2,6 +2,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const http = require('http');
 
 const config = require('./config');
@@ -9,12 +10,19 @@ const api = require('./api');
 const websocket = require('./websocket');
 const entities = require('./entities');
 
+// Site Framework (initializes database)
+const framework = require('./site-framework');
+
 // Create Express app
 const app = express();
-app.use(cors());
+app.use(cors({ credentials: true, origin: true }));
+app.use(cookieParser());
 app.use(express.json());
 
-// API routes
+// Site Framework API routes (auth, users, logs, settings)
+app.use('/api', framework.routes);
+
+// Game API routes
 app.use('/api', api);
 
 // Health check
