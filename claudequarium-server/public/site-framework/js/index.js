@@ -37,3 +37,13 @@ export {
 
 // Table component
 export { Table } from './table.js';
+
+// Notification channels
+export {
+  CHANNEL_TYPES,
+  getChannelConfig,
+  getAllChannelTypes,
+  isSensitiveField,
+  NotificationChannelForm,
+  NotificationAPI
+} from './notifications/index.js';

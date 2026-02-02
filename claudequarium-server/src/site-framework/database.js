@@ -19,6 +19,7 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 // ============================================
 // Configuration
@@ -60,9 +61,35 @@ function initDatabase() {
     seedDefaultData(db);
   } else {
     console.log('[DB] Connected to existing database:', DB_PATH);
+    runMigrations(db);
   }
 
   return db;
+}
+
+/**
+ * Run database migrations for existing databases
+ */
+function runMigrations(db) {
+  // Check if notification_channels table exists
+  const tableExists = db.prepare(`
+    SELECT name FROM sqlite_master
+    WHERE type='table' AND name='notification_channels'
+  `).get();
+
+  if (!tableExists) {
+    console.log('[DB] Running migration: Adding notification_channels table');
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS notification_channels (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        channel_type TEXT UNIQUE NOT NULL,
+        enabled INTEGER DEFAULT 0,
+        config TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+  }
 }
 
 /**
@@ -112,6 +139,18 @@ function initSchema(db) {
     CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
       value TEXT,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Notification channels table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS notification_channels (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      channel_type TEXT UNIQUE NOT NULL,
+      enabled INTEGER DEFAULT 0,
+      config TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -440,6 +479,203 @@ const settings = {
 };
 
 // ============================================
+// Encryption Utilities
+// ============================================
+
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'change-this-key-in-production-32b';
+const ALGORITHM = 'aes-256-cbc';
+
+function getEncryptionKey() {
+  return Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').substring(0, 32));
+}
+
+const encryption = {
+  /**
+   * Encrypt a string value
+   */
+  encrypt(text) {
+    if (!text) return '';
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(ALGORITHM, getEncryptionKey(), iv);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return iv.toString('hex') + ':' + encrypted;
+  },
+
+  /**
+   * Decrypt an encrypted string
+   */
+  decrypt(encryptedText) {
+    if (!encryptedText) return '';
+    try {
+      const [iv, encrypted] = encryptedText.split(':');
+      const decipher = crypto.createDecipheriv(ALGORITHM, getEncryptionKey(), Buffer.from(iv, 'hex'));
+      let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+      decrypted += decipher.final('utf8');
+      return decrypted;
+    } catch (err) {
+      console.error('Decryption error:', err.message);
+      return '';
+    }
+  }
+};
+
+// ============================================
+// Notification Channels Functions
+// ============================================
+
+// Sensitive fields that should be encrypted (by channel type)
+const SENSITIVE_FIELDS = {
+  teams: ['webhookUrl'],
+  email: ['smtpPassword'],
+  slack: ['webhookUrl'],
+  discord: ['webhookUrl'],
+  webhook: ['authValue']
+};
+
+const notificationChannels = {
+  /**
+   * Get all notification channels
+   */
+  getAll() {
+    const db = getDatabase();
+    const rows = db.prepare(`
+      SELECT channel_type, enabled, config, created_at, updated_at
+      FROM notification_channels
+    `).all();
+
+    return rows.map(row => ({
+      channelType: row.channel_type,
+      enabled: !!row.enabled,
+      config: this._parseConfig(row.channel_type, row.config, false),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
+  },
+
+  /**
+   * Get a specific channel configuration
+   */
+  get(channelType) {
+    const db = getDatabase();
+    const row = db.prepare(`
+      SELECT channel_type, enabled, config, created_at, updated_at
+      FROM notification_channels WHERE channel_type = ?
+    `).get(channelType);
+
+    if (!row) return null;
+
+    return {
+      channelType: row.channel_type,
+      enabled: !!row.enabled,
+      config: this._parseConfig(channelType, row.config, false),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+  },
+
+  /**
+   * Get channel config with decrypted sensitive fields (for sending notifications)
+   */
+  getDecrypted(channelType) {
+    const db = getDatabase();
+    const row = db.prepare(`
+      SELECT channel_type, enabled, config
+      FROM notification_channels WHERE channel_type = ?
+    `).get(channelType);
+
+    if (!row) return null;
+
+    return {
+      channelType: row.channel_type,
+      enabled: !!row.enabled,
+      config: this._parseConfig(channelType, row.config, true)
+    };
+  },
+
+  /**
+   * Save channel configuration
+   */
+  save(channelType, enabled, config) {
+    const db = getDatabase();
+
+    // Get existing config to preserve encrypted fields not being updated
+    const existing = this.get(channelType);
+    const existingConfig = existing ? this._parseConfig(channelType, existing.config, true) : {};
+
+    // Merge with existing config (preserve sensitive fields if not provided)
+    const sensitiveFields = SENSITIVE_FIELDS[channelType] || [];
+    const mergedConfig = { ...existingConfig };
+
+    for (const [key, value] of Object.entries(config)) {
+      if (sensitiveFields.includes(key)) {
+        // Only update if new value provided
+        if (value) {
+          mergedConfig[key] = encryption.encrypt(value);
+        }
+        // Keep existing encrypted value if not provided
+      } else {
+        mergedConfig[key] = value;
+      }
+    }
+
+    const configStr = JSON.stringify(mergedConfig);
+
+    db.prepare(`
+      INSERT INTO notification_channels (channel_type, enabled, config, updated_at)
+      VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(channel_type) DO UPDATE SET
+        enabled = ?,
+        config = ?,
+        updated_at = CURRENT_TIMESTAMP
+    `).run(channelType, enabled ? 1 : 0, configStr, enabled ? 1 : 0, configStr);
+  },
+
+  /**
+   * Delete channel configuration
+   */
+  delete(channelType) {
+    const db = getDatabase();
+    db.prepare('DELETE FROM notification_channels WHERE channel_type = ?').run(channelType);
+  },
+
+  /**
+   * Parse config JSON and handle sensitive fields
+   * @param {string} channelType - Channel type
+   * @param {string} configStr - JSON config string
+   * @param {boolean} decrypt - Whether to decrypt sensitive fields
+   */
+  _parseConfig(channelType, configStr, decrypt) {
+    if (!configStr) return {};
+
+    try {
+      const config = JSON.parse(configStr);
+      const sensitiveFields = SENSITIVE_FIELDS[channelType] || [];
+
+      if (decrypt) {
+        // Decrypt sensitive fields
+        for (const field of sensitiveFields) {
+          if (config[field]) {
+            config[field] = encryption.decrypt(config[field]);
+          }
+        }
+      } else {
+        // Mask sensitive fields for API response
+        for (const field of sensitiveFields) {
+          if (config[field]) {
+            config[field] = '••••••••';
+          }
+        }
+      }
+
+      return config;
+    } catch {
+      return {};
+    }
+  }
+};
+
+// ============================================
 // Exports
 // ============================================
 
@@ -449,5 +685,7 @@ module.exports = {
   sessions,
   logs,
   settings,
+  notificationChannels,
+  encryption,
   DB_PATH
 };

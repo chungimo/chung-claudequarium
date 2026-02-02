@@ -29,6 +29,8 @@
  * @param {string} options.placeholder - Placeholder (usually same as label)
  * @param {string} options.value - Initial value
  * @param {string} options.autocomplete - Autocomplete attribute
+ * @param {string} options.name - Input name attribute
+ * @param {boolean} options.ignorePasswordManagers - Add attributes to prevent 1Password/LastPass autofill
  * @param {Function} options.validate - Custom validation function
  */
 export function createField(options) {
@@ -42,11 +44,18 @@ export function createField(options) {
     placeholder = ' ',
     value = '',
     autocomplete = 'off',
+    name = '',
+    ignorePasswordManagers = false,
     validate = null
   } = options;
 
   const wrapper = document.createElement('div');
   wrapper.className = `sf-field ${required ? 'sf-field-required' : ''}`;
+
+  // Build password manager ignore attributes
+  const pmIgnoreAttrs = ignorePasswordManagers
+    ? 'data-1p-ignore data-lpignore="true" data-form-type="other"'
+    : '';
 
   wrapper.innerHTML = `
     <input
@@ -56,6 +65,8 @@ export function createField(options) {
       placeholder="${placeholder}"
       value="${escapeAttr(value)}"
       autocomplete="${autocomplete}"
+      ${name ? `name="${name}"` : ''}
+      ${pmIgnoreAttrs}
       ${required ? 'required' : ''}
     >
     <label class="sf-field-label" for="${id}">${label}</label>

@@ -16,6 +16,11 @@ import { LoginModal } from '../site-framework/js/loginModal.js';
 import { SettingsModal } from '../site-framework/js/settings.js';
 import { LogsModal } from '../site-framework/js/logs.js';
 import { Table } from '../site-framework/js/table.js';
+import {
+  getAllChannelTypes,
+  NotificationChannelForm,
+  NotificationAPI
+} from '../site-framework/js/notifications/index.js';
 
 // Debug module
 import {
@@ -130,8 +135,7 @@ function handleMenuItemClick(itemId, _event) {
   switch (itemId) {
     case 'account':
       if (auth.isLoggedIn()) {
-        // Show account info - go to users section
-        showSettingsModal('users');
+        showAccountModal();
       } else {
         showLoginModal();
       }
@@ -166,6 +170,254 @@ async function handleLogout() {
     auth.logout();
     window.location.reload();
   }, 3000);
+}
+
+// ============================================
+// Account Modal
+// ============================================
+
+function showAccountModal() {
+  import('../site-framework/js/modal.js').then(({ Modal }) => {
+    const user = auth.getUser();
+
+    const modal = new Modal({
+      title: 'Account Settings',
+      content: `
+        <div class="sf-account-modal">
+          <div class="sf-account-section">
+            <h4 class="sf-account-section-title">Profile</h4>
+            <div class="sf-account-info">
+              <span class="sf-account-info-label">Username</span>
+              <span class="sf-account-info-value">${user.username}</span>
+            </div>
+          </div>
+
+          <div class="sf-account-section">
+            <h4 class="sf-account-section-title">Change Password</h4>
+            <form id="account-password-form" autocomplete="off" onsubmit="return false;"
+                  data-1p-ignore data-lpignore="true" data-form-type="other">
+              <!-- Hidden honeypot fields to absorb browser autofill -->
+              <input type="text" name="prevent_autofill_pass_1" style="display:none !important" tabindex="-1" autocomplete="off">
+              <input type="password" name="prevent_autofill_pass_2" style="display:none !important" tabindex="-1" autocomplete="off">
+              <div class="sf-field">
+                <input type="password" id="account-current-password" class="sf-field-input" placeholder=" "
+                       autocomplete="off" name="current-pass-${Date.now()}"
+                       data-1p-ignore data-lpignore="true" data-form-type="other">
+                <label class="sf-field-label" for="account-current-password">Current Password</label>
+              </div>
+              <div class="sf-field">
+                <input type="password" id="account-new-password" class="sf-field-input" placeholder=" "
+                       autocomplete="new-password" name="new-pass-${Date.now()}"
+                       data-1p-ignore data-lpignore="true" data-form-type="other">
+                <label class="sf-field-label" for="account-new-password">New Password</label>
+                <span class="sf-field-hint">Minimum 6 characters</span>
+              </div>
+              <div class="sf-field">
+                <input type="password" id="account-confirm-password" class="sf-field-input" placeholder=" "
+                       autocomplete="new-password" name="confirm-pass-${Date.now()}"
+                       data-1p-ignore data-lpignore="true" data-form-type="other">
+                <label class="sf-field-label" for="account-confirm-password">Confirm New Password</label>
+              </div>
+            </form>
+          </div>
+
+          <div class="sf-account-section">
+            <h4 class="sf-account-section-title">API Key</h4>
+            <p class="sf-account-hint">Use an API key for programmatic access without username/password.</p>
+            <div id="api-key-container">
+              <div class="sf-api-key-loading">Loading...</div>
+            </div>
+          </div>
+        </div>
+      `,
+      footer: `
+        <button class="sf-btn sf-btn-primary" id="btn-save-account">Save Changes</button>
+        <button class="sf-btn sf-btn-secondary" id="btn-cancel-account">Cancel</button>
+      `
+    });
+
+    modal.open();
+
+    // Load API key status
+    loadApiKeyStatus(modal.element.querySelector('#api-key-container'));
+
+    // Cancel button
+    modal.element.querySelector('#btn-cancel-account').addEventListener('click', () => modal.close());
+
+    // Save button (only for password changes now)
+    modal.element.querySelector('#btn-save-account').addEventListener('click', async () => {
+      const currentPassword = modal.element.querySelector('#account-current-password').value;
+      const newPassword = modal.element.querySelector('#account-new-password').value;
+      const confirmPassword = modal.element.querySelector('#account-confirm-password').value;
+
+      // If not changing password, nothing to save
+      if (!newPassword && !confirmPassword) {
+        modal.showError('Enter a new password to save changes');
+        return;
+      }
+
+      // Validate password change
+      if (!currentPassword) {
+        modal.showError('Current password is required');
+        return;
+      }
+      if (newPassword.length < 6) {
+        modal.showError('New password must be at least 6 characters');
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        modal.showError('New passwords do not match');
+        return;
+      }
+
+      try {
+        const response = await auth.fetch('/api/account', {
+          method: 'PUT',
+          body: JSON.stringify({
+            currentPassword,
+            newPassword
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          modal.showError(data.error || 'Failed to update password');
+          return;
+        }
+
+        toast.success('Password updated successfully');
+        modal.close();
+      } catch (err) {
+        modal.showError('Network error');
+      }
+    });
+  });
+}
+
+async function loadApiKeyStatus(container) {
+  try {
+    const response = await auth.fetch('/api/account');
+    if (!response.ok) throw new Error('Failed to load account info');
+
+    const account = await response.json();
+
+    if (account.hasApiKey) {
+      container.innerHTML = `
+        <div class="sf-api-key-status sf-api-key-active">
+          <span class="sf-api-key-indicator"></span>
+          <span>API key is active</span>
+        </div>
+        <div class="sf-api-key-actions">
+          <button class="sf-btn sf-btn-secondary sf-btn-sm" id="btn-regenerate-api-key">
+            Regenerate Key
+          </button>
+          <button class="sf-btn sf-btn-danger sf-btn-sm" id="btn-revoke-api-key">
+            Revoke Key
+          </button>
+        </div>
+      `;
+
+      container.querySelector('#btn-regenerate-api-key').addEventListener('click', () => generateApiKey(container));
+      container.querySelector('#btn-revoke-api-key').addEventListener('click', () => revokeApiKey(container));
+    } else {
+      container.innerHTML = `
+        <div class="sf-api-key-status sf-api-key-inactive">
+          <span class="sf-api-key-indicator"></span>
+          <span>No API key configured</span>
+        </div>
+        <button class="sf-btn sf-btn-primary sf-btn-sm" id="btn-generate-api-key">
+          Generate API Key
+        </button>
+      `;
+
+      container.querySelector('#btn-generate-api-key').addEventListener('click', () => generateApiKey(container));
+    }
+  } catch (err) {
+    console.error('Error loading API key status:', err);
+    container.innerHTML = '<p style="color: var(--sf-danger);">Failed to load API key status</p>';
+  }
+}
+
+async function generateApiKey(container) {
+  try {
+    const response = await auth.fetch('/api/account/api-key', { method: 'POST' });
+
+    if (!response.ok) {
+      const data = await response.json();
+      toast.error(data.error || 'Failed to generate API key');
+      return;
+    }
+
+    const { apiKey } = await response.json();
+
+    // Show the newly generated key (only shown once!)
+    container.innerHTML = `
+      <div class="sf-api-key-generated">
+        <p class="sf-api-key-warning">
+          <strong>Important:</strong> Copy this key now. It will not be shown again!
+        </p>
+        <div class="sf-api-key-value">
+          <code id="api-key-display">${apiKey}</code>
+          <button class="sf-btn sf-btn-secondary sf-btn-icon" id="btn-copy-api-key" title="Copy">
+            <i class="sf-icon sf-icon-copy"></i>
+          </button>
+        </div>
+      </div>
+      <button class="sf-btn sf-btn-secondary sf-btn-sm" id="btn-done-api-key" style="margin-top: 16px;">
+        Done
+      </button>
+    `;
+
+    container.querySelector('#btn-copy-api-key').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(apiKey);
+        toast.success('API key copied to clipboard');
+      } catch {
+        toast.error('Failed to copy to clipboard');
+      }
+    });
+
+    container.querySelector('#btn-done-api-key').addEventListener('click', () => {
+      loadApiKeyStatus(container);
+    });
+
+    toast.success('API key generated');
+  } catch (err) {
+    console.error('Error generating API key:', err);
+    toast.error('Failed to generate API key');
+  }
+}
+
+async function revokeApiKey(container) {
+  import('../site-framework/js/modal.js').then(async ({ ConfirmModal }) => {
+    const confirmModal = new ConfirmModal({
+      title: 'Revoke API Key',
+      message: 'Are you sure you want to revoke your API key? Any applications using this key will no longer be able to authenticate.',
+      confirmText: 'Revoke',
+      confirmStyle: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await auth.fetch('/api/account/api-key', { method: 'DELETE' });
+
+          if (!response.ok) {
+            const data = await response.json();
+            toast.error(data.error || 'Failed to revoke API key');
+            confirmModal.close();
+            return;
+          }
+
+          toast.success('API key revoked');
+          confirmModal.close();
+          loadApiKeyStatus(container);
+        } catch (err) {
+          toast.error('Failed to revoke API key');
+          confirmModal.close();
+        }
+      }
+    });
+    confirmModal.open();
+  });
 }
 
 // ============================================
@@ -518,21 +770,77 @@ function showDeleteUserConfirm(user, onSuccess) {
 }
 
 function renderIntegrations() {
-  return `
-    <div style="color: var(--sf-text-muted);">
-      <h4 style="color: var(--sf-text-primary); margin-bottom: 16px;">Notifications</h4>
-      <p style="margin-bottom: 24px;">
-        Configure notification channels (Discord, Slack, Teams, Email) for various events.
-        This section will be customized per project.
-      </p>
+  const container = document.createElement('div');
 
-      <h4 style="color: var(--sf-text-primary); margin-bottom: 16px;">Webhooks</h4>
-      <p>
-        Configure outgoing webhooks to integrate with external services.
-        Webhook triggers are project-specific.
+  // Check if admin
+  if (!auth.isAdmin()) {
+    container.innerHTML = `
+      <p style="color: var(--sf-text-muted);">
+        You need admin privileges to configure integrations.
       </p>
-    </div>
+    `;
+    return container;
+  }
+
+  container.innerHTML = `
+    <p style="color: var(--sf-text-muted); margin-bottom: 24px;">
+      Configure notification channels to receive alerts for various events.
+    </p>
+    <div id="notification-channels" class="sf-notify-channels"></div>
   `;
+
+  // Load notification channel forms after render
+  setTimeout(() => {
+    loadNotificationChannels(container.querySelector('#notification-channels'));
+  }, 0);
+
+  return container;
+}
+
+async function loadNotificationChannels(channelsContainer) {
+  const channelTypes = getAllChannelTypes();
+
+  for (const channelConfig of channelTypes) {
+    const channelWrapper = document.createElement('div');
+    channelsContainer.appendChild(channelWrapper);
+
+    // Fetch existing config
+    let initialValues = { enabled: false };
+    try {
+      const saved = await NotificationAPI.get(channelConfig.id);
+      if (saved && saved.config) {
+        initialValues = { enabled: saved.enabled, ...saved.config };
+      }
+    } catch (err) {
+      console.error(`Failed to load ${channelConfig.id} config:`, err);
+    }
+
+    // Create the form
+    new NotificationChannelForm({
+      channelType: channelConfig.id,
+      container: channelWrapper,
+      initialValues,
+      onSave: async (values) => {
+        try {
+          await NotificationAPI.save(channelConfig.id, values);
+          toast.success(`${channelConfig.name} configuration saved`);
+        } catch (err) {
+          toast.error(`Failed to save: ${err.message}`);
+        }
+      },
+      onTest: async (values) => {
+        try {
+          await NotificationAPI.test(channelConfig.id, values);
+          toast.success('Test notification sent!');
+        } catch (err) {
+          toast.error(`Test failed: ${err.message}`);
+        }
+      },
+      onToggle: (enabled) => {
+        console.log(`${channelConfig.name} ${enabled ? 'enabled' : 'disabled'}`);
+      }
+    });
+  }
 }
 
 // ============================================
